@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MC Tiers Leaderboard</title>
+
+<style>
+body {
+  background:#0f172a;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+}
+
+h1 { margin:20px; }
+
+input, button {
+  padding:8px;
+  margin:5px;
+  border-radius:5px;
+  border:none;
+}
+
+button {
+  background:#3b82f6;
+  color:white;
+  cursor:pointer;
+}
+
+table {
+  margin:20px auto;
+  width:90%;
+  border-collapse:collapse;
+  background:#1e293b;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+th, td {
+  padding:12px;
+  border-bottom:1px solid #334155;
+}
+
+th {
+  background:linear-gradient(90deg,#3b82f6,#6366f1);
+}
+
+tr:hover { background:#334155; }
+
+.player {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content:center;
+}
+
+.player img {
+  width:30px;
+  border-radius:5px;
+}
+
+/* Tier styles */
+.master { color:gold; font-weight:bold; }
+.ace { color:#60a5fa; font-weight:bold; }
+.pro { color:#34d399; font-weight:bold; }
+
+.god {
+  color:red;
+  font-weight:bold;
+  text-shadow:0 0 10px red;
+}
+</style>
+
+</head>
+<body>
+
+<h1>⚔️ MC Tiers Leaderboard</h1>
+
+<div>
+  <input id="name" placeholder="Player Name">
+  <input id="points" type="number" placeholder="Points">
+  <button onclick="addPlayer()">Add Player</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Player</th>
+<th>Points</th>
+<th>Tier</th>
+</tr>
+</thead>
+
+<tbody id="board"></tbody>
+</table>
+
+<script>
+let players = JSON.parse(localStorage.getItem("players")) || [
+  {name:"PlayerOne", points:2500},
+  {name:"PlayerTwo", points:2200},
+  {name:"PlayerThree", points:2000}
+];
+
+function saveData(){
+  localStorage.setItem("players", JSON.stringify(players));
+}
+
+function getTier(rank, points){
+  if(rank === 1 && points >= 3000) return "god";
+  if(rank <= 3) return "master";
+  if(rank <= 10) return "ace";
+  return "pro";
+}
+
+function render(){
+  players.sort((a,b)=>b.points-a.points);
+  let html = "";
+
+  players.forEach((p,i)=>{
+    let rank = i + 1;
+    let tier = getTier(rank, p.points);
+
+    html += `
+    <tr>
+      <td>#${rank}</td>
+      <td class="player">
+        <img src="https://mc-heads.net/avatar/${p.name}">
+        ${p.name}
+      </td>
+      <td>⚔️ ${p.points}</td>
+      <td class="${tier}">
+        ${tier === "god" ? "🔥 Combat God" :
+          tier === "master" ? "👑 Combat Master" :
+          tier === "ace" ? "💎 Combat Ace" :
+          "⚡ Combat Pro"}
+      </td>
+    </tr>`;
+  });
+
+  document.getElementById("board").innerHTML = html;
+}
+
+function addPlayer(){
+  let name = document.getElementById("name").value;
+  let points = parseInt(document.getElementById("points").value);
+
+  if(!name || !points) return;
+
+  players.push({name, points});
+  saveData();
+  render();
+
+  document.getElementById("name").value = "";
+  document.getElementById("points").value = "";
+}
+
+render();
+</script>
+
+</body>
+</html>
